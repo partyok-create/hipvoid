@@ -1,12 +1,11 @@
 import Link from "next/link";
 
 const C = {
-  bg:      "#000000",
-  cyan:    "#2DE1FF",
-  yellow:  "#F8E71C",
-  white:   "#F5F5F7",
-  muted:   "#9AA0B2",
-  border:  "#161922",
+  bg:     "#000000",
+  cyan:   "#2DE1FF",
+  yellow: "#F8E71C",
+  white:  "#F5F5F7",
+  muted:  "#9AA0B2",
 };
 
 export default function LandingPage() {
@@ -31,15 +30,12 @@ export default function LandingPage() {
         backgroundSize: "40px 40px",
       }} />
 
-      {/* 상단 아이덴티티 */}
+      {/* 상단: 저자 한 줄만 */}
       <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
         <p style={{
-          fontSize: 10, letterSpacing: "0.35em", color: C.cyan,
-          opacity: 0.75, textTransform: "uppercase", margin: 0,
+          fontSize: 11, color: C.muted,
+          letterSpacing: "0.2em", margin: 0,
         }}>
-          HIP · VOID · 創造者 COMMUNITY
-        </p>
-        <p style={{ fontSize: 11, color: C.muted, marginTop: 4, letterSpacing: "0.2em" }}>
           저자 김영한의 창조자 커뮤니티
         </p>
       </div>
@@ -71,11 +67,10 @@ export default function LandingPage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          position: "relative",
         }}>
           {/* HIP */}
           <h1 style={{
-            fontSize: 88,
+            fontSize: 90,
             fontWeight: 700,
             fontStyle: "italic",
             color: C.yellow,
@@ -86,29 +81,22 @@ export default function LandingPage() {
           }}>
             HIP
           </h1>
-          {/* VOID */}
+          {/* VOID — 크고 꽉 차게 */}
           <p style={{
-            fontSize: 22,
+            fontSize: 48,
+            fontWeight: 700,
             color: C.white,
-            letterSpacing: "0.25em",
-            marginTop: 4,
-            textShadow: `0 0 20px rgba(255,255,255,0.5)`,
+            letterSpacing: "0.18em",
+            marginTop: 2,
+            lineHeight: 1,
+            textShadow: `0 0 30px rgba(255,255,255,0.6)`,
           }}>
             VOID
           </p>
-          {/* 원 내부 카피 */}
-          <div style={{ marginTop: 16, textAlign: "center", padding: "0 20px" }}>
-            <p style={{ fontSize: 13, color: "#E6E8EE", lineHeight: 1.6, margin: 0 }}>
-              허무는 병이 아니다.
-            </p>
-            <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-              창조의 시작이다.
-            </p>
-          </div>
         </div>
       </div>
 
-      {/* 메인 카피 */}
+      {/* 메인 카피 — 한 번만 */}
       <div style={{ textAlign: "center", zIndex: 1 }}>
         <p style={{ fontSize: 20, color: C.white, fontWeight: 300, letterSpacing: "0.04em", margin: "0 0 6px" }}>
           허무는 병이 아니다.
@@ -154,14 +142,6 @@ export default function LandingPage() {
           이미 초대받으셨나요?
         </Link>
       </div>
-
-      {/* 콜로폰 */}
-      <p style={{
-        fontSize: 11, color: "#E6E8EE", letterSpacing: "0.18em",
-        zIndex: 1, opacity: 0.85, margin: 0,
-      }}>
-        김영한 著 ·『힙 허무는 창조다』
-      </p>
     </main>
   );
 }
