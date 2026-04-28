@@ -2,30 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --cyan:   #2DE1FF;
-  --yellow: #F8E71C;
-  --bg:     #000000;
-}
-
-* { box-sizing: border-box; }
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   background: #000;
   color: #F5F5F7;
-  font-family: system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-
-@keyframes grid-fade {
-  0%, 100% { opacity: 0.03; }
-  50%       { opacity: 0.06; }
-}
-
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(45,225,255,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45,225,255,0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  animation: grid-fade 6s ease-in-out infinite;
-}
+a { color: inherit; }

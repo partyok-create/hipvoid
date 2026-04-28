@@ -1,102 +1,167 @@
 import Link from "next/link";
 
+const C = {
+  bg:      "#000000",
+  cyan:    "#2DE1FF",
+  yellow:  "#F8E71C",
+  white:   "#F5F5F7",
+  muted:   "#9AA0B2",
+  border:  "#161922",
+};
+
 export default function LandingPage() {
   return (
-    <main className="relative min-h-screen bg-black flex flex-col items-center justify-between px-6 py-10 overflow-hidden">
+    <main style={{
+      minHeight: "100vh",
+      backgroundColor: C.bg,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "40px 24px",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+
       {/* 배경 그리드 */}
-      <div className="absolute inset-0 grid-bg pointer-events-none" />
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: `linear-gradient(rgba(45,225,255,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(45,225,255,0.04) 1px, transparent 1px)`,
+        backgroundSize: "40px 40px",
+      }} />
 
       {/* 상단 아이덴티티 */}
-      <div className="relative z-10 text-center pt-2">
-        <p className="text-[10px] tracking-[0.35em] text-hv-cyan opacity-70 uppercase">
+      <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+        <p style={{
+          fontSize: 10, letterSpacing: "0.35em", color: C.cyan,
+          opacity: 0.75, textTransform: "uppercase", margin: 0,
+        }}>
           HIP · VOID · 創造者 COMMUNITY
         </p>
-        <p className="text-[11px] text-hv-muted mt-1 tracking-[0.2em]">
+        <p style={{ fontSize: 11, color: C.muted, marginTop: 4, letterSpacing: "0.2em" }}>
           저자 김영한의 창조자 커뮤니티
         </p>
       </div>
 
       {/* 중앙 ORB */}
-      <div className="relative z-10 flex items-center justify-center my-6">
+      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
         {/* 외곽 글로우 링 */}
-        <div
-          className="absolute rounded-full border border-hv-cyan animate-orb"
-          style={{ width: 320, height: 320, opacity: 0.15 }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 300,
-            height: 300,
-            background: "radial-gradient(circle, rgba(45,225,255,0.12) 0%, transparent 70%)",
-          }}
-        />
+        <div style={{
+          position: "absolute",
+          width: 320, height: 320,
+          borderRadius: "50%",
+          border: `1px solid ${C.cyan}`,
+          opacity: 0.15,
+        }} />
+        {/* 배경 글로우 */}
+        <div style={{
+          position: "absolute",
+          width: 300, height: 300,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(45,225,255,0.13) 0%, transparent 70%)`,
+        }} />
         {/* 메인 원 */}
-        <div
-          className="relative rounded-full border-2 border-hv-cyan flex flex-col items-center justify-center animate-glow-pulse"
-          style={{ width: 280, height: 280 }}
-        >
+        <div style={{
+          width: 280, height: 280,
+          borderRadius: "50%",
+          border: `2px solid ${C.cyan}`,
+          boxShadow: `0 0 60px rgba(45,225,255,0.45), 0 0 120px rgba(45,225,255,0.15), inset 0 0 60px rgba(0,0,0,0.85)`,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}>
           {/* HIP */}
-          <h1
-            className="text-[90px] font-bold italic text-hv-yellow leading-none"
-            style={{
-              fontFamily: "Georgia, serif",
-              textShadow: "0 0 40px rgba(248,231,28,0.85)",
-            }}
-          >
+          <h1 style={{
+            fontSize: 88,
+            fontWeight: 700,
+            fontStyle: "italic",
+            color: C.yellow,
+            fontFamily: "Georgia, serif",
+            lineHeight: 1,
+            margin: 0,
+            textShadow: `0 0 40px rgba(248,231,28,0.9)`,
+          }}>
             HIP
           </h1>
           {/* VOID */}
-          <p
-            className="text-2xl text-white tracking-[0.25em] mt-1"
-            style={{ textShadow: "0 0 20px rgba(255,255,255,0.5)" }}
-          >
+          <p style={{
+            fontSize: 22,
+            color: C.white,
+            letterSpacing: "0.25em",
+            marginTop: 4,
+            textShadow: `0 0 20px rgba(255,255,255,0.5)`,
+          }}>
             VOID
           </p>
           {/* 원 내부 카피 */}
-          <div className="mt-4 text-center px-6">
-            <p className="text-[13px] text-[#E6E8EE] leading-relaxed">
+          <div style={{ marginTop: 16, textAlign: "center", padding: "0 20px" }}>
+            <p style={{ fontSize: 13, color: "#E6E8EE", lineHeight: 1.6, margin: 0 }}>
               허무에 갇히셨습니까.
             </p>
-            <p className="text-[13px] leading-relaxed">
-              <span className="text-[#E6E8EE]">창조의 </span>
-              <span className="text-hv-cyan" style={{ textShadow: "0 0 10px rgba(45,225,255,0.7)" }}>
-                대열
-              </span>
-              <span className="text-[#E6E8EE]">에 합류하십시오.</span>
+            <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+              <span style={{ color: "#E6E8EE" }}>창조의 </span>
+              <span style={{ color: C.cyan, textShadow: `0 0 10px rgba(45,225,255,0.8)` }}>대열</span>
+              <span style={{ color: "#E6E8EE" }}>에 합류하십시오.</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* 메인 카피 */}
-      <div className="relative z-10 text-center mb-4">
-        <p className="text-[19px] text-white font-light tracking-wide">
+      <div style={{ textAlign: "center", zIndex: 1 }}>
+        <p style={{ fontSize: 20, color: C.white, fontWeight: 300, letterSpacing: "0.04em", margin: "0 0 6px" }}>
           허무는 병이 아니다.
         </p>
-        <p className="text-[19px] text-white font-light tracking-wide mt-1">
+        <p style={{ fontSize: 20, color: C.white, fontWeight: 300, letterSpacing: "0.04em", margin: 0 }}>
           창조의 시작이다.
         </p>
       </div>
 
       {/* 버튼 */}
-      <div className="relative z-10 w-full max-w-sm space-y-3">
-        <Link
-          href="/register"
-          className="block w-full py-4 bg-hv-cyan text-black text-center font-bold text-[16px] tracking-wide rounded-sm hover:opacity-90 transition-opacity"
-        >
+      <div style={{ width: "100%", maxWidth: 360, zIndex: 1 }}>
+        <Link href="/register" style={{
+          display: "block",
+          width: "100%",
+          padding: "16px 0",
+          backgroundColor: C.cyan,
+          color: "#000",
+          textAlign: "center",
+          fontWeight: 700,
+          fontSize: 16,
+          letterSpacing: "0.05em",
+          borderRadius: 2,
+          textDecoration: "none",
+          boxShadow: `0 0 20px rgba(45,225,255,0.4)`,
+          marginBottom: 12,
+        }}>
           창조자로 합류하기
         </Link>
-        <Link
-          href="/enter"
-          className="block w-full py-4 border border-hv-yellow text-hv-yellow text-center font-medium text-[14px] tracking-wide rounded-sm hover:bg-hv-yellow hover:text-black transition-all"
-        >
+        <Link href="/enter" style={{
+          display: "block",
+          width: "100%",
+          padding: "16px 0",
+          backgroundColor: "transparent",
+          border: `1px solid ${C.yellow}`,
+          color: C.yellow,
+          textAlign: "center",
+          fontWeight: 500,
+          fontSize: 14,
+          letterSpacing: "0.05em",
+          borderRadius: 2,
+          textDecoration: "none",
+        }}>
           이미 초대받으셨나요?
         </Link>
       </div>
 
-      {/* 하단 콜로폰 */}
-      <p className="relative z-10 text-[11px] text-[#E6E8EE] tracking-[0.18em] mt-4 opacity-80">
+      {/* 콜로폰 */}
+      <p style={{
+        fontSize: 11, color: "#E6E8EE", letterSpacing: "0.18em",
+        zIndex: 1, opacity: 0.85, margin: 0,
+      }}>
         김영한 著 ·『힙 허무는 창조다』
       </p>
     </main>
