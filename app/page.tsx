@@ -99,12 +99,10 @@ export default function LandingPage() {
           {/* 원 내부 카피 */}
           <div style={{ marginTop: 16, textAlign: "center", padding: "0 20px" }}>
             <p style={{ fontSize: 13, color: "#E6E8EE", lineHeight: 1.6, margin: 0 }}>
-              허무에 갇히셨습니까.
+              허무는 병이 아니다.
             </p>
             <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-              <span style={{ color: "#E6E8EE" }}>창조의 </span>
-              <span style={{ color: C.cyan, textShadow: `0 0 10px rgba(45,225,255,0.8)` }}>대열</span>
-              <span style={{ color: "#E6E8EE" }}>에 합류하십시오.</span>
+              창조의 시작이다.
             </p>
           </div>
         </div>
