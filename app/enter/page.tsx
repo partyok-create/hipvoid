@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const C = {
+  bg: "#000000", cyan: "#2DE1FF", yellow: "#F8E71C",
+  white: "#F5F5F7", muted: "#9AA0B2", surface: "#0E1016", border: "#161922",
+};
+
 export default function EnterPage() {
-  const [number, setNumber] = useState("");
-  const [error, setError]   = useState("");
+  const [number, setNumber]   = useState("");
+  const [error, setError]     = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -15,49 +20,43 @@ export default function EnterPage() {
     setLoading(true);
     setError("");
 
-    // TODO: Firebase에서 창조자 번호 검증
-    // 현재는 번호가 있으면 입장 처리 (추후 연동)
-    setTimeout(() => {
-      if (number.trim().length > 0) {
-        router.push("/home");
-      } else {
-        setError("유효하지 않은 번호입니다.");
-        setLoading(false);
-      }
-    }, 800);
+    // 창조자 번호 저장 후 홈으로 이동
+    localStorage.setItem("creatorNo", number.trim());
+    setTimeout(() => router.push("/home"), 600);
   };
 
   return (
-    <main className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
-      {/* 배경 글로우 */}
-      <div
-        className="absolute rounded-full pointer-events-none"
-        style={{
-          width: 360, height: 360,
-          background: "radial-gradient(circle, rgba(45,225,255,0.06) 0%, transparent 70%)",
-          top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-        }}
-      />
+    <main style={{
+      minHeight: "100vh", backgroundColor: C.bg,
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", padding: "0 24px",
+      position: "relative",
+    }}>
+      <div style={{
+        position: "absolute", width: 360, height: 360, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(45,225,255,0.06) 0%, transparent 70%)",
+        top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none",
+      }} />
 
-      <div className="relative z-10 w-full max-w-sm">
-        <a href="/" className="block text-hv-muted text-sm mb-10 hover:text-white transition-colors">
+      <div style={{ position: "relative", width: "100%", maxWidth: 360 }}>
+        <a href="/" style={{ display: "block", color: C.muted, fontSize: 13, marginBottom: 40, textDecoration: "none" }}>
           ← 돌아가기
         </a>
 
-        <p className="text-[10px] tracking-[0.4em] text-hv-cyan mb-4 uppercase">
-          Creator Access
+        <p style={{ fontSize: 10, letterSpacing: "0.4em", color: C.cyan, marginBottom: 12 }}>
+          CREATOR ACCESS
         </p>
-        <h2 className="text-[26px] font-light text-white mb-2">
+        <h2 style={{ fontSize: 26, color: C.white, fontWeight: 300, lineHeight: 1.4, marginBottom: 8 }}>
           창조자 번호로<br />입장하세요
         </h2>
-        <p className="text-[13px] text-hv-muted mb-10">
+        <p style={{ fontSize: 13, color: C.muted, marginBottom: 40 }}>
           메일 또는 문자로 받은 번호를 입력해 주세요.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div>
-            <label className="block text-[11px] text-hv-muted tracking-widest mb-2 uppercase">
-              Creator No.
+            <label style={{ display: "block", fontSize: 11, color: C.muted, letterSpacing: "0.2em", marginBottom: 8 }}>
+              CREATOR No.
             </label>
             <input
               type="text"
@@ -65,35 +64,42 @@ export default function EnterPage() {
               onChange={(e) => setNumber(e.target.value)}
               placeholder="0001"
               maxLength={8}
-              className="w-full bg-hv-surface border border-hv-border text-white text-center text-2xl tracking-[0.5em] py-4 rounded-sm outline-none focus:border-hv-cyan transition-colors placeholder-hv-border"
-              style={{ fontFamily: "Georgia, serif" }}
               autoFocus
+              style={{
+                width: "100%", backgroundColor: C.surface,
+                border: `1px solid ${number ? C.cyan : C.border}`,
+                color: C.white, fontSize: 28, textAlign: "center",
+                letterSpacing: "0.5em", padding: "16px",
+                borderRadius: 4, outline: "none",
+                fontFamily: "Georgia, serif",
+              }}
             />
-            {error && (
-              <p className="text-red-400 text-xs mt-2 text-center">{error}</p>
-            )}
+            {error && <p style={{ color: "#ff6b6b", fontSize: 12, marginTop: 6, textAlign: "center" }}>{error}</p>}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-hv-cyan text-black font-bold text-[15px] tracking-wide rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            style={{
+              padding: "16px", backgroundColor: C.cyan,
+              color: "#000", fontWeight: 700, fontSize: 15,
+              border: "none", borderRadius: 2, cursor: "pointer",
+              letterSpacing: "0.05em", opacity: loading ? 0.6 : 1,
+            }}
           >
             {loading ? "확인 중…" : "입장하기 →"}
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-[12px] text-hv-muted">
+        <div style={{ marginTop: 32, textAlign: "center" }}>
+          <p style={{ fontSize: 12, color: C.muted }}>
             아직 번호가 없으신가요?{" "}
-            <a href="/register" className="text-hv-cyan hover:underline">
-              창조자 등록
-            </a>
+            <a href="/register" style={{ color: C.cyan, textDecoration: "none" }}>창조자 등록</a>
           </p>
         </div>
       </div>
 
-      <p className="absolute bottom-8 text-[11px] text-[#E6E8EE] tracking-[0.18em] opacity-70">
+      <p style={{ position: "absolute", bottom: 32, fontSize: 11, color: "#E6E8EE", letterSpacing: "0.18em", opacity: 0.7 }}>
         김영한 著 ·『힙 허무는 창조다』
       </p>
     </main>
