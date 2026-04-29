@@ -49,8 +49,76 @@ type Post = {
   createdAt: { seconds: number } | null;
 };
 
+// ── 공유 함수 ─────────────────────────────────────────────
+async function sharePost(post: Post) {
+  const appUrl = "https://hipvoid.vercel.app";
+  const creatorTag = `Creator No.${post.creatorNo} | HIP VOID`;
+
+  let shareText = "";
+  if (!post.type || post.type === "sentence") {
+    shareText = `"${post.sentence}"\n\n${creatorTag}\n${appUrl}`;
+  } else if (post.type === "sticky") {
+    shareText = `${post.stickyText}\n\n${creatorTag}\n${appUrl}`;
+  } else if (post.type === "photo") {
+    shareText = `${post.caption ? post.caption + "\n\n" : ""}${creatorTag}\n${appUrl}`;
+  }
+
+  // 1순위: 모바일 네이티브 공유 시트 (인스타/페북/쓰레드/카톡 전부 포함)
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try {
+      await navigator.share({
+        title: "HIP VOID",
+        text: shareText,
+        url: appUrl,
+      });
+      return;
+    } catch {
+      // 사용자가 취소한 경우 무시
+      return;
+    }
+  }
+
+  // 2순위: 데스크탑 — 클립보드 복사 + 플랫폼 링크 팝업
+  showDesktopShare(shareText, appUrl, post);
+}
+
+function showDesktopShare(text: string, url: string, post: Post) {
+  const encoded = encodeURIComponent(url);
+  const textEncoded = encodeURIComponent(text);
+
+  // 팝업 모달 대신 간단히 클립보드 + 새탭
+  const menu = [
+    {
+      label: "페이스북 공유",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encoded}`,
+    },
+    {
+      label: "쓰레드 공유",
+      href: `https://www.threads.net/intent/post?text=${textEncoded}`,
+    },
+    {
+      label: post.type === "photo" && post.photoURL ? "이미지 저장 (인스타용)" : "링크 복사",
+      href: post.type === "photo" && post.photoURL ? post.photoURL : null,
+      copy: post.type !== "photo" || !post.photoURL,
+      copyText: text,
+    },
+  ];
+
+  // 간단한 confirm 방식으로 선택
+  const choice = window.prompt(
+    `공유할 플랫폼을 선택하세요:\n1 - 페이스북\n2 - 쓰레드\n3 - ${menu[2].label}\n\n번호 입력:`
+  );
+  if (choice === "1") window.open(menu[0].href, "_blank");
+  else if (choice === "2") window.open(menu[1].href, "_blank");
+  else if (choice === "3") {
+    if (menu[2].href) window.open(menu[2].href as string, "_blank");
+    else {
+      navigator.clipboard.writeText(text).then(() => alert("텍스트가 복사되었습니다!"));
+    }
+  }
+}
+
 export default function UploadPage() {
-  // ── 창조자 번호 ──────────────────────────────────────────
   const [creatorNo, setCreatorNo] = useState("");
   const [numberInput, setNumberInput] = useState("");
   const [numberError, setNumberError] = useState("");
@@ -58,24 +126,17 @@ export default function UploadPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("creatorNo");
-    if (saved) {
-      setCreatorNo(saved);
-      setNumberConfirmed(true);
-    }
+    if (saved) { setCreatorNo(saved); setNumberConfirmed(true); }
   }, []);
 
   const handleNumberSubmit = () => {
-    if (!numberInput.trim()) {
-      setNumberError("번호를 입력해 주세요.");
-      return;
-    }
+    if (!numberInput.trim()) { setNumberError("번호를 입력해 주세요."); return; }
     localStorage.setItem("creatorNo", numberInput.trim());
     setCreatorNo(numberInput.trim());
     setNumberConfirmed(true);
     setNumberError("");
   };
 
-  // ── 업로드 폼 ─────────────────────────────────────────────
   const [type, setType] = useState<ContentType>("sentence");
   const [sentence, setSentence] = useState("");
   const [caption, setCaption] = useState("");
@@ -88,17 +149,12 @@ export default function UploadPage() {
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ── 피드 ─────────────────────────────────────────────────
   const [posts, setPosts] = useState<Post[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [resonated, setResonated] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const q = query(
-      collection(db, "posts"),
-      orderBy("createdAt", "desc"),
-      limit(30)
-    );
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(30));
     const unsub = onSnapshot(q, (snap) => {
       setPosts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Post)));
       setFeedLoading(false);
@@ -118,7 +174,6 @@ export default function UploadPage() {
     return `${d.getMonth() + 1}.${d.getDate()}`;
   };
 
-  // ── 업로드 핸들러 ─────────────────────────────────────────
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -141,41 +196,17 @@ export default function UploadPage() {
     setUploadError("");
     try {
       if (type === "sentence") {
-        await addDoc(collection(db, "posts"), {
-          type: "sentence",
-          sentence: sentence.trim(),
-          creatorNo,
-          resonances: 0,
-          createdAt: serverTimestamp(),
-        });
+        await addDoc(collection(db, "posts"), { type: "sentence", sentence: sentence.trim(), creatorNo, resonances: 0, createdAt: serverTimestamp() });
       } else if (type === "photo" && imageFile) {
         const storageRef = ref(storage, `posts/${Date.now()}_${imageFile.name}`);
         const snapshot = await uploadBytes(storageRef, imageFile);
         const photoURL = await getDownloadURL(snapshot.ref);
-        await addDoc(collection(db, "posts"), {
-          type: "photo",
-          photoURL,
-          caption: caption.trim(),
-          creatorNo,
-          resonances: 0,
-          createdAt: serverTimestamp(),
-        });
+        await addDoc(collection(db, "posts"), { type: "photo", photoURL, caption: caption.trim(), creatorNo, resonances: 0, createdAt: serverTimestamp() });
       } else if (type === "sticky") {
-        await addDoc(collection(db, "posts"), {
-          type: "sticky",
-          stickyText: stickyText.trim(),
-          stickyColor,
-          creatorNo,
-          resonances: 0,
-          createdAt: serverTimestamp(),
-        });
+        await addDoc(collection(db, "posts"), { type: "sticky", stickyText: stickyText.trim(), stickyColor, creatorNo, resonances: 0, createdAt: serverTimestamp() });
       }
       setDone(true);
-      setSentence("");
-      setCaption("");
-      setStickyText("");
-      setImageFile(null);
-      setImagePreview(null);
+      setSentence(""); setCaption(""); setStickyText(""); setImageFile(null); setImagePreview(null);
     } catch (e) {
       console.error(e);
       setUploadError("업로드 실패. 다시 시도해 주세요.");
@@ -186,78 +217,32 @@ export default function UploadPage() {
 
   return (
     <main style={{ minHeight: "100vh", backgroundColor: C.bg, display: "flex", flexDirection: "column" }}>
-
       {/* 헤더 */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: `1px solid ${C.border}` }}>
         <span style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, opacity: 0.8 }}>HIP VOID</span>
         {numberConfirmed
           ? <span style={{ fontSize: 11, color: C.muted }}>Creator No. {creatorNo}</span>
-          : <span style={{ fontSize: 11, color: C.muted, letterSpacing: "0.1em" }}>업로드</span>
-        }
+          : <span style={{ fontSize: 11, color: C.muted }}>업로드</span>}
       </div>
 
-      {/* 메인 */}
       <div style={{ flex: 1, padding: "24px 20px", maxWidth: 480, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
 
-        {/* ── 번호 미입력 상태 ── */}
         {!numberConfirmed ? (
           <div style={{ paddingTop: 40 }}>
-            <p style={{ fontSize: 10, letterSpacing: "0.35em", color: C.cyan, marginBottom: 16, textAlign: "center" }}>
-              CREATOR ACCESS
-            </p>
+            <p style={{ fontSize: 10, letterSpacing: "0.35em", color: C.cyan, marginBottom: 16, textAlign: "center" }}>CREATOR ACCESS</p>
             <h2 style={{ fontSize: 20, color: C.white, fontWeight: 300, textAlign: "center", lineHeight: 1.6, marginBottom: 8 }}>
               창조자 번호를 입력하면<br />컨텐츠를 올릴 수 있습니다
             </h2>
-            <p style={{ fontSize: 12, color: C.muted, textAlign: "center", marginBottom: 32 }}>
-              메일 또는 문자로 받은 번호를 입력하세요
-            </p>
-
-            <input
-              type="text"
-              value={numberInput}
-              onChange={(e) => setNumberInput(e.target.value)}
+            <p style={{ fontSize: 12, color: C.muted, textAlign: "center", marginBottom: 32 }}>메일 또는 문자로 받은 번호를 입력하세요</p>
+            <input type="text" value={numberInput} onChange={(e) => setNumberInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleNumberSubmit()}
-              placeholder="0001"
-              maxLength={8}
-              autoFocus
-              style={{
-                width: "100%",
-                backgroundColor: C.surface,
-                border: `1px solid ${numberInput ? C.cyan : C.border}`,
-                color: C.white,
-                fontSize: 32,
-                textAlign: "center",
-                letterSpacing: "0.5em",
-                padding: "16px",
-                borderRadius: 4,
-                outline: "none",
-                fontFamily: "Georgia, serif",
-                boxSizing: "border-box",
-                marginBottom: 8,
-              }}
-            />
-            {numberError && (
-              <p style={{ fontSize: 12, color: "#FF6B6B", textAlign: "center", marginBottom: 12 }}>{numberError}</p>
-            )}
-
-            <button
-              onClick={handleNumberSubmit}
-              style={{
-                width: "100%",
-                padding: "14px",
-                backgroundColor: numberInput.trim() ? C.cyan : C.border,
-                color: numberInput.trim() ? "#000" : C.muted,
-                fontWeight: 700,
-                fontSize: 15,
-                border: "none",
-                borderRadius: 2,
-                cursor: numberInput.trim() ? "pointer" : "default",
-                marginBottom: 20,
-              }}
-            >
+              placeholder="0001" maxLength={8} autoFocus
+              style={{ width: "100%", backgroundColor: C.surface, border: `1px solid ${numberInput ? C.cyan : C.border}`, color: C.white, fontSize: 32, textAlign: "center", letterSpacing: "0.5em", padding: "16px", borderRadius: 4, outline: "none", fontFamily: "Georgia, serif", boxSizing: "border-box", marginBottom: 8 }} />
+            {numberError && <p style={{ fontSize: 12, color: "#FF6B6B", textAlign: "center", marginBottom: 12 }}>{numberError}</p>}
+            <button onClick={handleNumberSubmit}
+              style={{ width: "100%", padding: "14px", backgroundColor: numberInput.trim() ? C.cyan : C.border, color: numberInput.trim() ? "#000" : C.muted, fontWeight: 700, fontSize: 15, border: "none", borderRadius: 2, cursor: numberInput.trim() ? "pointer" : "default", marginBottom: 20 }}>
               확인하고 업로드하기 →
             </button>
-
             <p style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
               번호가 없으신가요?{" "}
               <a href="/register" style={{ color: C.cyan, textDecoration: "none" }}>창조자 등록</a>
@@ -265,24 +250,20 @@ export default function UploadPage() {
           </div>
 
         ) : done ? (
-          /* ── 업로드 완료 화면 ── */
           <div style={{ textAlign: "center", paddingTop: 60 }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", border: `1.5px solid ${C.cyan}`, boxShadow: `0 0 30px rgba(45,225,255,0.5)`, margin: "0 auto 24px" }} />
             <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 12 }}>UPLOADED</p>
             <p style={{ fontSize: 20, color: C.white, fontWeight: 300, marginBottom: 8 }}>업로드되었습니다.</p>
             <p style={{ fontSize: 13, color: C.muted, marginBottom: 32 }}>당신의 흔적이 남았습니다.</p>
-            <button
-              onClick={() => setDone(false)}
-              style={{ padding: "14px 32px", backgroundColor: C.cyan, color: "#000", fontWeight: 700, fontSize: 14, border: "none", borderRadius: 2, cursor: "pointer" }}
-            >
+            <button onClick={() => setDone(false)}
+              style={{ padding: "14px 32px", backgroundColor: C.cyan, color: "#000", fontWeight: 700, fontSize: 14, border: "none", borderRadius: 2, cursor: "pointer" }}>
               또 올리기
             </button>
           </div>
 
         ) : (
-          /* ── 업로드 폼 ── */
           <>
-            {/* 타입 탭 — 비활성 테두리 흰색 */}
+            {/* 타입 탭 */}
             <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
               {(["sentence", "photo", "sticky"] as ContentType[]).map((t) => {
                 const labels: Record<ContentType, string> = { sentence: "문장", photo: "사진", sticky: "스티커" };
@@ -301,44 +282,32 @@ export default function UploadPage() {
               })}
             </div>
 
-            {/* 문장 */}
             {type === "sentence" && (
               <div>
                 <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 14, textAlign: "center" }}>SENTENCE</p>
-                {/* 메인 카피 교체 */}
                 <h2 style={{ fontSize: 17, color: C.white, fontWeight: 300, textAlign: "center", lineHeight: 1.6, marginBottom: 20 }}>
                   당신의 창조 에너지를<br />나눠주세요
                 </h2>
-                {/* placeholder에 원래 문장 이동, '책 속 문장을 입력하세요' 삭제 */}
-                <textarea
-                  value={sentence}
-                  onChange={(e) => setSentence(e.target.value)}
-                  placeholder="오늘 당신을 멈춰 세운 문장은 무엇입니까?"
-                  maxLength={300}
-                  rows={5}
-                  style={{ width: "100%", backgroundColor: C.surface, border: `1px solid ${sentence.length > 0 ? C.cyan : C.border}`, color: C.white, fontSize: 16, lineHeight: 1.8, padding: "16px", borderRadius: 4, outline: "none", resize: "none", fontFamily: "Georgia, serif", boxSizing: "border-box" }}
-                />
+                <textarea value={sentence} onChange={(e) => setSentence(e.target.value)}
+                  placeholder="오늘 당신을 멈춰 세운 문장은 무엇입니까?" maxLength={300} rows={5}
+                  style={{ width: "100%", backgroundColor: C.surface, border: `1px solid ${sentence.length > 0 ? C.cyan : C.border}`, color: C.white, fontSize: 16, lineHeight: 1.8, padding: "16px", borderRadius: 4, outline: "none", resize: "none", fontFamily: "Georgia, serif", boxSizing: "border-box" }} />
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}>
                   <span style={{ fontSize: 11, color: C.muted }}>{sentence.length}/300</span>
                 </div>
               </div>
             )}
 
-            {/* 사진 */}
             {type === "photo" && (
               <div>
                 <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 14, textAlign: "center" }}>PHOTO</p>
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ width: "100%", aspectRatio: "1", backgroundColor: C.surface, border: `2px dashed ${imagePreview ? C.cyan : C.border}`, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", marginBottom: 12 }}
-                >
+                <div onClick={() => fileInputRef.current?.click()}
+                  style={{ width: "100%", aspectRatio: "1", backgroundColor: C.surface, border: `2px dashed ${imagePreview ? C.cyan : C.border}`, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", marginBottom: 12 }}>
                   {imagePreview
                     ? <img src={imagePreview} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     : <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: 32, marginBottom: 8 }}>📷</p>
                         <p style={{ fontSize: 12, color: C.muted }}>탭해서 사진 선택</p>
-                      </div>
-                  }
+                      </div>}
                 </div>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
                 <input value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="한 줄 캡션 (선택사항)" maxLength={100}
@@ -346,17 +315,12 @@ export default function UploadPage() {
               </div>
             )}
 
-            {/* 스티커 */}
             {type === "sticky" && (
               <div>
                 <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 14, textAlign: "center" }}>STICKY NOTE</p>
                 <div style={{ display: "flex", gap: 10, marginBottom: 16, justifyContent: "center" }}>
                   {STICKY_COLORS.map((c) => (
-                    <button key={c} onClick={() => setStickyColor(c)} style={{
-                      width: 32, height: 32, borderRadius: "50%", backgroundColor: c,
-                      border: stickyColor === c ? `2px solid ${C.cyan}` : `2px solid ${C.border}`,
-                      cursor: "pointer", boxShadow: stickyColor === c ? `0 0 10px ${C.cyan}` : "none",
-                    }} />
+                    <button key={c} onClick={() => setStickyColor(c)} style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: c, border: stickyColor === c ? `2px solid ${C.cyan}` : `2px solid ${C.border}`, cursor: "pointer", boxShadow: stickyColor === c ? `0 0 10px ${C.cyan}` : "none" }} />
                   ))}
                 </div>
                 <div style={{ backgroundColor: stickyColor, borderRadius: 4, padding: "28px 20px", marginBottom: 16, minHeight: 100, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid rgba(255,255,255,0.08)` }}>
@@ -374,28 +338,23 @@ export default function UploadPage() {
 
             {uploadError && <p style={{ fontSize: 12, color: "#FF6B6B", textAlign: "center", marginTop: 8 }}>{uploadError}</p>}
 
-            {/* 올리기 버튼 텍스트 수정 */}
             <button onClick={handleSubmit} disabled={loading || !isValid()} style={{
               width: "100%", padding: "15px",
               backgroundColor: isValid() ? C.cyan : C.border,
               color: isValid() ? "#000" : C.muted,
               fontWeight: 700, fontSize: 14, border: "none", borderRadius: 2,
-              cursor: isValid() ? "pointer" : "default", marginTop: 16,
-              letterSpacing: "0.02em",
+              cursor: isValid() ? "pointer" : "default", marginTop: 16, letterSpacing: "0.02em",
             }}>
               {loading ? "올리는 중…" : "창조 에너지 발자욱 남기기"}
             </button>
           </>
         )}
 
-        {/* ── 구분선 ── */}
         <div style={{ borderTop: `1px solid ${C.border}`, margin: "36px 0 24px" }} />
 
         {/* ── 하단 피드 ── */}
         <div>
-          <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 20, textAlign: "center" }}>
-            CREATORS&apos; FEED
-          </p>
+          <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 20, textAlign: "center" }}>CREATORS&apos; FEED</p>
 
           {feedLoading ? (
             <div style={{ textAlign: "center", padding: "40px 0" }}>
@@ -403,28 +362,22 @@ export default function UploadPage() {
             </div>
           ) : posts.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <p style={{ fontSize: 13, color: C.muted, lineHeight: 2 }}>
-                아직 올라온 컨텐츠가 없습니다.<br />첫 번째 흔적을 남겨보세요.
-              </p>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: 2 }}>아직 올라온 컨텐츠가 없습니다.<br />첫 번째 흔적을 남겨보세요.</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {posts.map((post) => (
                 <div key={post.id} style={{
                   backgroundColor: post.type === "sticky" ? (post.stickyColor || C.surface) : C.surface,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 4,
-                  padding: "18px",
+                  border: `1px solid ${C.border}`, borderRadius: 4, padding: "18px",
                 }}>
-                  {/* 헤더 */}
+                  {/* 카드 헤더 */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                       <span style={{ fontSize: 9, letterSpacing: "0.2em", color: C.cyan, backgroundColor: "rgba(45,225,255,0.1)", padding: "2px 8px", borderRadius: 999 }}>
                         {post.type === "photo" ? "PHOTO" : post.type === "sticky" ? "STICKY" : "SENTENCE"}
                       </span>
-                      <span style={{ fontSize: 10, color: C.cyan, letterSpacing: "0.2em", fontWeight: 600 }}>
-                        No.{post.creatorNo}
-                      </span>
+                      <span style={{ fontSize: 10, color: C.cyan, letterSpacing: "0.2em", fontWeight: 600 }}>No.{post.creatorNo}</span>
                     </div>
                     <span style={{ fontSize: 10, color: C.muted }}>{formatDate(post.createdAt)}</span>
                   </div>
@@ -447,11 +400,11 @@ export default function UploadPage() {
                     </p>
                   )}
 
-                  {/* 공명 버튼 */}
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  {/* 하단 액션 버튼 */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+                    {/* 공명 */}
                     <button onClick={() => handleResonate(post.id)} style={{
-                      display: "flex", alignItems: "center", gap: 6,
-                      padding: "6px 14px",
+                      display: "flex", alignItems: "center", gap: 6, padding: "6px 14px",
                       backgroundColor: resonated.has(post.id) ? "rgba(45,225,255,0.15)" : "transparent",
                       border: `1px solid ${resonated.has(post.id) ? C.cyan : C.border}`,
                       color: resonated.has(post.id) ? C.cyan : C.muted,
@@ -461,6 +414,18 @@ export default function UploadPage() {
                       공명했다
                       {post.resonances > 0 && <span style={{ opacity: 0.8 }}>{post.resonances}</span>}
                     </button>
+
+                    {/* 공유 */}
+                    <button onClick={() => sharePost(post)} style={{
+                      display: "flex", alignItems: "center", gap: 5, padding: "6px 14px",
+                      backgroundColor: "transparent",
+                      border: `1px solid ${C.border}`,
+                      color: C.muted,
+                      fontSize: 11, borderRadius: 999, cursor: "pointer", letterSpacing: "0.1em",
+                    }}>
+                      <span style={{ fontSize: 14 }}>↗</span>
+                      공유
+                    </button>
                   </div>
                 </div>
               ))}
@@ -468,7 +433,6 @@ export default function UploadPage() {
           )}
         </div>
 
-        {/* 여백 */}
         <div style={{ height: 40 }} />
       </div>
 
