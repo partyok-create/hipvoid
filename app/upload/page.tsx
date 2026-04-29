@@ -282,7 +282,7 @@ export default function UploadPage() {
         ) : (
           /* ── 업로드 폼 ── */
           <>
-            {/* 타입 탭 */}
+            {/* 타입 탭 — 비활성 테두리 흰색 */}
             <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
               {(["sentence", "photo", "sticky"] as ContentType[]).map((t) => {
                 const labels: Record<ContentType, string> = { sentence: "문장", photo: "사진", sticky: "스티커" };
@@ -291,8 +291,8 @@ export default function UploadPage() {
                   <button key={t} onClick={() => setType(t)} style={{
                     flex: 1, padding: "10px 0", fontSize: 12, letterSpacing: "0.1em",
                     backgroundColor: active ? C.cyan : C.surface,
-                    color: active ? "#000" : C.muted,
-                    border: `1px solid ${active ? C.cyan : C.border}`,
+                    color: active ? "#000" : C.white,
+                    border: `1px solid ${active ? C.cyan : "rgba(255,255,255,0.5)"}`,
                     borderRadius: 2, cursor: "pointer", fontWeight: active ? 700 : 400,
                   }}>
                     {labels[t]}
@@ -305,13 +305,15 @@ export default function UploadPage() {
             {type === "sentence" && (
               <div>
                 <p style={{ fontSize: 10, letterSpacing: "0.3em", color: C.cyan, marginBottom: 14, textAlign: "center" }}>SENTENCE</p>
+                {/* 메인 카피 교체 */}
                 <h2 style={{ fontSize: 17, color: C.white, fontWeight: 300, textAlign: "center", lineHeight: 1.6, marginBottom: 20 }}>
-                  오늘 당신을 멈춰 세운<br />문장은 무엇입니까?
+                  당신의 창조 에너지를<br />나눠주세요
                 </h2>
+                {/* placeholder에 원래 문장 이동, '책 속 문장을 입력하세요' 삭제 */}
                 <textarea
                   value={sentence}
                   onChange={(e) => setSentence(e.target.value)}
-                  placeholder="책 속 문장을 입력하세요..."
+                  placeholder="오늘 당신을 멈춰 세운 문장은 무엇입니까?"
                   maxLength={300}
                   rows={5}
                   style={{ width: "100%", backgroundColor: C.surface, border: `1px solid ${sentence.length > 0 ? C.cyan : C.border}`, color: C.white, fontSize: 16, lineHeight: 1.8, padding: "16px", borderRadius: 4, outline: "none", resize: "none", fontFamily: "Georgia, serif", boxSizing: "border-box" }}
@@ -372,14 +374,16 @@ export default function UploadPage() {
 
             {uploadError && <p style={{ fontSize: 12, color: "#FF6B6B", textAlign: "center", marginTop: 8 }}>{uploadError}</p>}
 
+            {/* 올리기 버튼 텍스트 수정 */}
             <button onClick={handleSubmit} disabled={loading || !isValid()} style={{
               width: "100%", padding: "15px",
               backgroundColor: isValid() ? C.cyan : C.border,
               color: isValid() ? "#000" : C.muted,
-              fontWeight: 700, fontSize: 15, border: "none", borderRadius: 2,
+              fontWeight: 700, fontSize: 14, border: "none", borderRadius: 2,
               cursor: isValid() ? "pointer" : "default", marginTop: 16,
+              letterSpacing: "0.02em",
             }}>
-              {loading ? "올리는 중…" : "올리기"}
+              {loading ? "올리는 중…" : "창조 에너지 발자욱 남기기"}
             </button>
           </>
         )}
