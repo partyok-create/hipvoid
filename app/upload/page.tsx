@@ -108,8 +108,8 @@ function showDesktopShare(text: string, url: string, post: Post) {
   const choice = window.prompt(
     `공유할 플랫폼을 선택하세요:\n1 - 페이스북\n2 - 쓰레드\n3 - ${menu[2].label}\n\n번호 입력:`
   );
-  if (choice === "1") window.open(menu[0].href, "_blank");
-  else if (choice === "2") window.open(menu[1].href, "_blank");
+  if (choice === "1") window.open(menu[0].href ?? "", "_blank");
+  else if (choice === "2") window.open(menu[1].href ?? "", "_blank");
   else if (choice === "3") {
     if (menu[2].href) window.open(menu[2].href as string, "_blank");
     else {
