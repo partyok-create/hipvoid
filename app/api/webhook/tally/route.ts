@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
-import SolapiMessageService from 'solapi';
+import { SolapiMessageService } from 'solapi';
 import nodemailer from 'nodemailer';
 
 // Firestore 트랜잭션으로 창조자 번호 순번 부여
