@@ -17,7 +17,7 @@ export default function LandingPage() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "40px 24px",
+      padding: "40px 24px 80px",
       position: "relative",
       overflow: "hidden",
     }}>
@@ -26,7 +26,7 @@ export default function LandingPage() {
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         backgroundImage: `linear-gradient(rgba(45,225,255,0.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(45,225,255,0.04) 1px, transparent 1px)`,
+linear-gradient(90deg, rgba(45,225,255,0.04) 1px, transparent 1px)`,
         backgroundSize: "40px 40px",
       }} />
 
@@ -42,7 +42,6 @@ export default function LandingPage() {
 
       {/* 중앙 ORB */}
       <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
-        {/* 외곽 글로우 링 */}
         <div style={{
           position: "absolute",
           width: 320, height: 320,
@@ -50,14 +49,12 @@ export default function LandingPage() {
           border: `1px solid ${C.cyan}`,
           opacity: 0.15,
         }} />
-        {/* 배경 글로우 */}
         <div style={{
           position: "absolute",
           width: 300, height: 300,
           borderRadius: "50%",
           background: `radial-gradient(circle, rgba(45,225,255,0.13) 0%, transparent 70%)`,
         }} />
-        {/* 메인 원 */}
         <div style={{
           width: 280, height: 280,
           borderRadius: "50%",
@@ -68,7 +65,6 @@ export default function LandingPage() {
           alignItems: "center",
           justifyContent: "center",
         }}>
-          {/* HIP */}
           <h1 style={{
             fontSize: 90,
             fontWeight: 700,
@@ -81,7 +77,6 @@ export default function LandingPage() {
           }}>
             HIP
           </h1>
-          {/* VOID — 크고 꽉 차게 */}
           <p style={{
             fontSize: 48,
             fontWeight: 700,
@@ -96,7 +91,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* 메인 카피 — 한 번만 */}
+      {/* 메인 카피 */}
       <div style={{ textAlign: "center", zIndex: 1 }}>
         <p style={{ fontSize: 20, color: C.white, fontWeight: 300, letterSpacing: "0.04em", margin: "0 0 6px" }}>
           허무는 병이 아니다.
@@ -104,6 +99,20 @@ export default function LandingPage() {
         <p style={{ fontSize: 20, color: C.white, fontWeight: 300, letterSpacing: "0.04em", margin: 0 }}>
           창조의 시작이다.
         </p>
+      </div>
+
+      {/* 오디오 플레이어 */}
+      <div style={{ textAlign: "center", zIndex: 1 }}>
+        <p style={{ fontSize: 11, color: C.muted, letterSpacing: "0.2em", margin: "0 0 8px" }}>
+          ▶ 들어보세요
+        </p>
+        <audio
+          controls
+          style={{ width: 260, opacity: 0.85 }}
+          src="/남의_알고리즘을_삭제하고_나를_실행하세요.m4a"
+        >
+          브라우저가 오디오를 지원하지 않습니다.
+        </audio>
       </div>
 
       {/* 버튼 */}
@@ -142,17 +151,28 @@ export default function LandingPage() {
           이미 초대받으셨나요?
         </Link>
       </div>
+
+      {/* 푸터 */}
+      <footer style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: "14px 24px",
+        textAlign: "center",
+        borderTop: `1px solid rgba(45,225,255,0.1)`,
+        zIndex: 1,
+      }}>
+        <p style={{ fontSize: 12, color: C.muted, margin: "0 0 3px", fontWeight: 600, letterSpacing: "0.12em" }}>
+          힙철학스쿨
+        </p>
+        <p style={{ fontSize: 11, color: C.muted, margin: "0 0 2px" }}>
+          제주특별자치도 서귀포시 대정읍 상모로 323-1, 2층
+        </p>
+        <a href="tel:010-5955-8813" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>
+          010-5955-8813
+        </a>
+      </footer>
     </main>
   );
 }
-{/* 오디오 플레이어 */}
-<div className="mt-8 flex flex-col items-center gap-2">
-  <p className="text-sm text-gray-400 tracking-widest">▶ 들어보세요</p>
-  <audio
-    controls
-    className="w-64 opacity-80"
-    src="/남의_알고리즘을_삭제하고_나를_실행하세요.m4a"
-  >
-    브라우저가 오디오를 지원하지 않습니다.
-  </audio>
-</div>
