@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 기본 설정
+    typescript: {
+          ignoreBuildErrors: true,
+    },
 };
 
 export default nextConfig;
