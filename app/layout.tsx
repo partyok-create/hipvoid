@@ -3,10 +3,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "HIP VOID — 창조자 커뮤니티",
-  description: "저자 김영한의 창조자 커뮤니티. 허무는 병이 아니다. 창조의 시작이다.",
+  description: "저자 김영한의 창조자 커뮤니티. 힙철학 창조자 베이스캠프 합류하기",
   openGraph: {
     title: "HIP VOID",
-    description: "허무는 병이 아니다. 창조의 시작이다.",
+    description: "힙철학 창조자 베이스캠프 합류하기",
     images: ["/og.png"],
   },
 };
