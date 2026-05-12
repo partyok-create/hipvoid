@@ -5,7 +5,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   doc,
   deleteDoc,
@@ -52,12 +51,20 @@ export default function ArchivePage() {
     const q = query(
       collection(db, "posts"),
       where("creatorNo", "==", no),
-      orderBy("createdAt", "desc")
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setPosts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Post)));
-      setLoading(false);
-    });
+          );
+        const unsub = onSnapshot(
+      q,
+            (snap) => {
+                      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Post));
+                      data.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+                      setPosts(data);
+                      setLoading(false);
+            },
+            (error) => {
+                      console.error("Archive query error:", error);
+                      setLoading(false);
+            }
+          );
     return () => unsub();
   }, []);
 
