@@ -145,3 +145,14 @@ export default function LandingPage() {
     </main>
   );
 }
+{/* 오디오 플레이어 */}
+<div className="mt-8 flex flex-col items-center gap-2">
+  <p className="text-sm text-gray-400 tracking-widest">▶ 들어보세요</p>
+  <audio
+    controls
+    className="w-64 opacity-80"
+    src="/남의_알고리즘을_삭제하고_나를_실행하세요.m4a"
+  >
+    브라우저가 오디오를 지원하지 않습니다.
+  </audio>
+</div>
