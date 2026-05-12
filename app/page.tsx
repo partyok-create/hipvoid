@@ -103,13 +103,13 @@ linear-gradient(90deg, rgba(45,225,255,0.04) 1px, transparent 1px)`,
 
       {/* 오디오 플레이어 */}
       <div style={{ textAlign: "center", zIndex: 1 }}>
-        <p style={{ fontSize: 11, color: C.muted, letterSpacing: "0.2em", margin: "0 0 8px" }}>
-          ▶ 들어보세요
+        <p style={{ fontSize: 11, color: C.cyan, letterSpacing: "0.15em", margin: "0 0 8px", fontWeight: 500 }}>
+          ▶ 처음 들어오신 분을 위한 가이드
         </p>
         <audio
           controls
-          style={{ width: 260, opacity: 0.85 }}
-          src="/남의_알고리즘을_삭제하고_나를_실행하세요.m4a"
+          style={{ width: 260, opacity: 0.9 }}
+          src={encodeURI("/남의_알고리즘을_삭제하고_나를_실행하세요.m4a")}
         >
           브라우저가 오디오를 지원하지 않습니다.
         </audio>
@@ -160,16 +160,16 @@ linear-gradient(90deg, rgba(45,225,255,0.04) 1px, transparent 1px)`,
         right: 0,
         padding: "14px 24px",
         textAlign: "center",
-        borderTop: `1px solid rgba(45,225,255,0.1)`,
+        borderTop: `1px solid rgba(45,225,255,0.2)`,
         zIndex: 1,
       }}>
-        <p style={{ fontSize: 12, color: C.muted, margin: "0 0 3px", fontWeight: 600, letterSpacing: "0.12em" }}>
+        <p style={{ fontSize: 13, color: C.white, margin: "0 0 4px", fontWeight: 700, letterSpacing: "0.12em" }}>
           힙철학스쿨
         </p>
-        <p style={{ fontSize: 11, color: C.muted, margin: "0 0 2px" }}>
+        <p style={{ fontSize: 12, color: C.white, margin: "0 0 2px", fontWeight: 600 }}>
           제주특별자치도 서귀포시 대정읍 상모로 323-1, 2층
         </p>
-        <a href="tel:010-5955-8813" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>
+        <a href="tel:010-5955-8813" style={{ fontSize: 12, color: C.cyan, textDecoration: "none", fontWeight: 700 }}>
           010-5955-8813
         </a>
       </footer>
