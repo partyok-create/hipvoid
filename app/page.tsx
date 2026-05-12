@@ -109,7 +109,7 @@ linear-gradient(90deg, rgba(45,225,255,0.04) 1px, transparent 1px)`,
         <audio
           controls
           style={{ width: 260, opacity: 0.9 }}
-          src={encodeURI("/남의_알고리즘을_삭제하고_나를_실행하세요.m4a")}
+          src="/audio-guide.m4a"
         >
           브라우저가 오디오를 지원하지 않습니다.
         </audio>
